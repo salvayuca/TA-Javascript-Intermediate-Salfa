@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+
+  <title>Skilvul</title>
+</head>
+
+<body>
+  <nav class="navbar navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand">Skilvul</a>
+      <form id="form-username" class="d-flex">
+
+        <input class="form-control me-2" type="text" placeholder="Username" aria-label="username" name="username" />
+        <button class="btn btn-outline-primary" type="submit">login</button>
+      </form>
+      <div id="div-username" class="d-none d-flex">
+        <button type="button" class="my-auto btn btn-primary btn-sm position-relative h-50">
+          <span id="username"></span>
+          <span id="badge-user"
+            class="top-0 position-absolute start-100 translate-middle badge rounded-pill bg-danger d-none">
+            10
+            <span class="visually-hidden">unread messages</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <div id="list-user" class="row"></div>
+  </div>
+
+  <!-- Optional JavaScript; choose one of the two! -->
+  <script type="module">
+    import githubUsers from "./07-web-storage-dummy-data.js";
+
+    const elFormUsername = document.querySelector("#form-username");
+    const elDivUsername = document.querySelector("#div-username");
+    const elUsername = document.querySelector("#username");
+    const elListUser = document.querySelector("#list-user");
+    const elBadgeUser = document.querySelector("#badge-user");
+
+    // WEB STORAGE
+    let username = sessionStorage.getItem("username");
+    let profile = localStorage.getItem(username ? username : "");
+
+    if (username) {
+      elDivUsername.classList.remove("d-none")
+      elFormUsername.classList.add("d-none")
+
+      elUsername.innerHTML = username
+    }
+
+    elFormUsername.onsubmit = function (e) {
+      e.preventDefault();
+      const formData = new FormData(e.target)
+      const formProps = Object.fromEntries(formData);
+
+      username = formProps.username
+      sessionStorage.setItem("username", username)
+
+      elDivUsername.classList.remove("d-none")
+      elFormUsername.classList.add("d-none")
+
+      profile = localStorage.getItem(username)
+
+      elUsername.innerHTML = username
+    }
+
+    githubUsers.forEach((user) => {
+      profile = localStorage.getItem(username)
+      let isFollowed = false
+
+      if (profile) {
+        const followedUser = JSON.parse(profile)
+        const findUser = followedUser.find(userValue =>
+          userValue.id === user.id)
+        if (findUser) {
+          isFollowed = true
+        }
+      }
+      
+      const elCol = document.createElement("div");
+      elCol.classList.add("col-xs-12", "col-sm-6", "col-md-4", "col-lg-3");
+
+      const elCard = document.createElement("div");
+      elCard.classList.add("card");
+
+      const elCardImg = document.createElement("div");
+      elCard.classList.add("card-img-top");
+      elCard.setAttribute("src", user.avatar_url);
+
+      const elCardBody = document.createElement("div");
+      elCardBody.classList.add("card-body");
+
+      const elCardTitle = document.createElement("div");
+      elCardTitle.classList.add("card-title");
+      elCardTitle.innerHTML = user.login;
+
+      const elCardButton = document.createElement("button");
+      elCardButton.setAttribute("type", "button");
+
+      if (isFollowed) {
+        elCardButton.innerHTML = "Unfollow"
+        elCardButton.classList.add("btn", "btn-success", "w-100");
+
+      } else {
+        elCardButton.innerHTML = "Follow";
+        elCardButton.classList.add("btn", "btn-primary", "w-100");
+      }
+
+      elCardButton.onclick = function (e) {
+        e.preventDefault()
+        profile = localStorage.getItem(username)
+        let sumFollowed = 0
+        if (profile) {
+          const followedUser = JSON.parse(profile)
+          let newFollowedUser = [...followedUser]
+          const findUser = followedUser.find(userValue =>
+            userValue.id === user.id)
+          if (!findUser) {
+            newFollowedUser.push(user)
+            e.target.innerHTML = "Unfollow"
+            e.target.classList.remove("btn", "btn-primary", "w-100");
+            e.target.classList.add("btn", "btn-success", "w-100");
+          } else {
+            newFollowedUser = newFollowedUser.filter(userValue => userValue.id !== user.id)
+            e.target.innerHTML = "Follow"
+            e.target.classList.remove("btn", "btn-success", "w-100");
+            e.target.classList.add("btn", "btn-primary", "w-100");
+          }
+          sumFollowed = newFollowedUser.length
+          localStorage.setItem(username, JSON.stringify(newFollowedUser))
+        } else {
+          const followedUser = [user]
+          sumFollowed = followedUser.length
+          localStorage.setItem(username, JSON.stringify(followedUser))
+        }
+        if (profile) {
+          elBadgeUser.classList.remove("d-none")
+          elBadgeUser.innerHTML = sumFollowed
+        }
+        console.log(profile);
+      }
+
+      elCardBody.appendChild(elCardTitle);
+      elCardBody.appendChild(elCardButton);
+      elCard.appendChild(elCardBody);
+      elCard.appendChild(elCardImg);
+      elCol.appendChild(elCard);
+
+      elListUser.appendChild(elCol);
+    });
+
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+
+</body>
+
+</html>

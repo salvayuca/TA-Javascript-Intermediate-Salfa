@@ -1,0 +1,3 @@
+1. Local storage merupakan penyimpanan yang bertahan sampai hal ini secara khusus dihapus melalui JavaScript atau pengguna membersihkan cache browser.
+2. Cookies merupakan data kecil yang dikirim dari situs web dan disimpan di komputer ketika menjelajahi web browser dengan maksimal data yaitu 4KB.
+3. Perbedaanya yaitu local storage no expired, menyimpan informasi selama pengguna tidak menghapusnya, sedangkan session storage terdapat expired, menyimpan informasi selama sesi berlangsung. Biasanya sampai pengguna menutup tab browser.
